@@ -5,10 +5,10 @@ export default function GitHubLink(props = {}) {
     <a
       target="_blank"
       rel="noreferrer"
-      href="https://github.com/nickcoutsos/keymap-editor"
+      href="https://github.com/alleindrach/zmk-config"
       {...props}
     >
-      <Icon collection="brands" name="github" />/nickcoutsos/keymap-editor
+      <Icon collection="brands" name="github" />alleindrach/zmk-config
     </a>
   )
 }

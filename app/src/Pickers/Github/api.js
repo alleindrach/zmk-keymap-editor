@@ -130,6 +130,20 @@ export class API extends EventEmitter {
       data: { layout, keymap }
     })
   }
+
+
+  fetchFirmware(repo, branch, commitId) {
+    const installation = encodeURIComponent(this.repoInstallationMap[repo])
+    const repository = encodeURIComponent(repo)
+
+    return this._request({
+      url: `/github/download-firmware/${installation}/${repository}/${encodeURIComponent(branch)}/${encodeURIComponent(commitId)}`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      responseType: 'arraybuffer', // 关键修改：使用 arraybuffer 接收二进制
+      data: { }
+    })
+  }
 }
 
 export default new API()

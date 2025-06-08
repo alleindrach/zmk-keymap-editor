@@ -137,11 +137,63 @@ async function commitChanges (installationId, repository, branch, layout, keymap
       sha: newSha
     }
   })
+
+  return newSha
 }
 
+async function fetchFirmware (installationId, repository, branch, commitId) {
+  const { data: { token: installationToken } } = await auth.createInstallationToken(installationId)
+ 
+  try {
+      const { data } = await api.request({
+        url: `/repos/${repository}/actions/artifacts`,
+        method: 'GET',
+        token: installationToken
+      });
+
+      artifactFound = data.artifacts.find(artifact => 
+        artifact.workflow_run && artifact.workflow_run.head_sha === commitId
+      );
+
+      if (artifactFound) {
+
+        // 8. 下载Artifact
+        const downloadResponse = await api.request({
+          url: `/repos/${repository}/actions/artifacts/${artifactFound.id}/zip`,
+          method: 'GET',
+          token: installationToken,
+          responseType: 'stream' // 重要：对于文件下载
+        });
+
+        // 返回提交SHA和下载流
+        return {
+          status: 1,
+          message: "",
+          artifactDownloadStream: downloadResponse.data
+        };
+      }else{
+        return {
+          status:0,
+          message:"固件生成中",
+          artifactDownloadStream:null
+        }
+      }
+     
+    } catch (error) {
+      console.error('Error polling artifacts:', error.message);
+      // 网络错误时等待30秒后重试
+      return {
+          status:-1,
+          message:error.message,
+          artifactDownloadStream:null
+        }
+    }
+
+}
 module.exports = {
   MissingRepoFile,
   fetchKeyboardFiles,
   findCodeKeymap,
-  commitChanges
+  commitChanges,
+  fetchFirmware
 }

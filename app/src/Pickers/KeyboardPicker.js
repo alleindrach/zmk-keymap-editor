@@ -7,7 +7,7 @@ import { loadLayout } from '../layout.js'
 import { loadKeymap } from '../keymap.js'
 import Selector from "../Common/Selector"
 import GithubPicker from './Github/Picker'
-
+import { useTranslation } from 'react-i18next' // 新增导入
 const sourceChoices = compact([
   config.enableLocal ? { id: 'local', name: 'Local' } : null,
   config.enableGitHub ? { id: 'github', name: 'GitHub' } : null
@@ -24,26 +24,46 @@ const defaultSource = onlySource || (
 function KeyboardPicker(props) {
   const { onSelect } = props
   const [source, setSource] = useState(defaultSource)
+  const { t } = useTranslation() // 获取翻译函数
+    // 国际化后的选项
+  const localizedSourceChoices = useMemo(() => (
+    sourceChoices.map(choice => ({
+      ...choice,
+      name: t(choice.id.toLowerCase()) // 使用翻译
+    }))
+  ), [t])
 
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
   const handleKeyboardSelected = useMemo(() => function (event) {
     const { layout, keymap, ...rest } = event
 
-    const layerNames = keymap.layer_names || keymap.layers.map((_, i) => `Layer ${i}`)
+    const layerNames = keymap.layer_names || keymap.layers.map((_, i) => 
+      t('layer', { number: i + 1 }) // 翻译层名称
+    )
     Object.assign(keymap, {
       layer_names: layerNames
     })
 
     onSelect({ source, layout, keymap, ...rest })
-  }, [onSelect, source])
+  }, [onSelect, source,t])
 
   const fetchLocalKeyboard = useMemo(() => async function() {
-    const [layout, keymap] = await Promise.all([
-      loadLayout(),
-      loadKeymap()
-    ])
+    setLoading(true)
+    setError(null)
+    try {
+        const [layout, keymap] = await Promise.all([
+          loadLayout(),
+          loadKeymap()
+        ])
 
-    handleKeyboardSelected({ source, layout, keymap })
-  }, [source, handleKeyboardSelected])
+        handleKeyboardSelected({ source, layout, keymap })
+      }catch (err) {
+      setError(t('error', { error: err.message }))
+    } finally {
+      setLoading(false)
+    }
+  }, [source, handleKeyboardSelected,t])
 
   useEffect(() => {
     localStorage.setItem('selectedSource', source)
@@ -56,9 +76,9 @@ function KeyboardPicker(props) {
     <div>
       <Selector
         id="source"
-        label="Source"
+        label={t('source')} // 翻译标签
         value={source}
-        choices={sourceChoices}
+        choices={localizedSourceChoices} // 使用翻译后的选项
         onUpdate={value => {
           setSource(value)
           onSelect(value)

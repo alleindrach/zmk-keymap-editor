@@ -19,7 +19,8 @@ function Keyboard(props) {
   const availableLayers = useMemo(() => isEmpty(keymap) ? [] : (
     keymap.layers.map((_, i) => ({
       code: i,
-      description: keymap.layer_names[i] || `Layer ${i}`
+      description: keymap.layer_names[i] || `Layer ${i}`,
+      symbol: keymap.layer_names[i]
     }))
   ), [keymap])
 

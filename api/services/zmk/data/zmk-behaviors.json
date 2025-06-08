@@ -198,5 +198,11 @@
     "code": "&none",
     "name": "None",
     "params": []
+  },
+  {
+    "code": "&ht",
+    "name": "Hold-Tap",
+    "description": "Custom hold-tap behavior with tap-preferred flavor and 200ms tapping term.",
+    "params": ["code","code"]
   }
 ]

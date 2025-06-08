@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import Icon from '../Common/Icon'
 import styles from './styles.module.css'
-
+import { useTranslation } from 'react-i18next' // 新增导入
 function stop(fn) {
   return function(event) {
     event.stopPropagation()
@@ -25,7 +25,7 @@ function LayerSelector(props) {
   const { onSelect, onNewLayer, onRenameLayer, onDeleteLayer } = props
   const [renaming, setRenaming] = useState(false)
   const [editing, setEditing] = useState('')
-
+  const { t } = useTranslation() // 获取翻译函数
   const handleSelect = useMemo(() => function(layer) {
     if (layer === activeLayer) {
       setEditing(layers[activeLayer])
@@ -42,7 +42,7 @@ function LayerSelector(props) {
   }, [onNewLayer])
 
   const handleDelete = useMemo(() => function(layerIndex, layerName) {
-    const confirmation = `Really delete layer: ${layerName}?`
+    const confirmation = t('Really delete layer:')+ `${layerName}`+'?'
     window.confirm(confirmation) && onDeleteLayer(layerIndex)
   }, [onDeleteLayer])
 
@@ -92,7 +92,7 @@ function LayerSelector(props) {
       data-renaming={renaming}
       ref={ref}
     >
-      <p>Layers:</p>
+      <p>{t("Layers")}</p>
       <ul>
         {layers.map((name, i) => (
           <li
@@ -131,7 +131,7 @@ function LayerSelector(props) {
         ))}
         <li onClick={handleAdd}>
           <Icon className={styles.index} name="plus" />
-          <span className={styles.name}>Add Layer</span>
+          <span className={styles.name}>{t("Add Layer")}</span>
         </li>
       </ul>
     </div>

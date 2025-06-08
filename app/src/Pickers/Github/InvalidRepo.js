@@ -1,28 +1,25 @@
 import Modal from "../../Common/Modal"
 import DialogBox from "../../Common/DialogBox"
-
+import { useTranslation } from 'react-i18next' // 新增导入
+import { useTranslation } from 'react-i18next' // 新增导入
 export default function InvalidRepo(props) {
   const { onDismiss, otherRepoOrBranchAvailable = false } = props
   const demoRepoUrl = 'https://github.com/nickcoutsos/zmk-config-corne-demo/'
-
+  const { t } = useTranslation() // 获取翻译函数
   return (
     <Modal>
       <DialogBox onDismiss={onDismiss}>
-        <h2>Hold up a second!</h2>
+        <h2>{t("invalid-repo.title")}</h2>
         <p>
-          The selected repository does not contain <code>info.json</code> or
-          <code>keymap.json</code>.
+          {t("invalid-repo.message-p1")}
         </p>
         <p>
-          This app depends on some additional metadata to render the keymap.
-          For an example repository ready to use now or metadata you can apply
-          to your own keyboard repo, have a look at
+           {t("invalid-repo.message-p2")}
           <a href={demoRepoUrl}>zmk-config-corne-demo</a>.
         </p>
         {otherRepoOrBranchAvailable && (
           <p>
-            If you have another branch or repository the the required metadata
-            files you may switch to them instead.
+             {t("invalid-repo.message-p3")}
           </p>
         )}
       </DialogBox>

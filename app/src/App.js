@@ -13,6 +13,9 @@ import Keyboard from './Keyboard/Keyboard'
 import GitHubLink from './GitHubLink'
 import Loader from './Common/Loader'
 import github from './Pickers/Github/api'
+import ValidationErrors from './Pickers/Github/ValidationErrors'
+import LanguagePicker from "./Pickers/LanguagePicker"
+import { useTranslation } from 'react-i18next';
 
 function App() {
   const [definitions, setDefinitions] = useState(null)
@@ -22,7 +25,12 @@ function App() {
   const [keymap, setKeymap] = useState(null)
   const [editingKeymap, setEditingKeymap] = useState(null)
   const [saving, setSaving] = useState(false)
-
+  const [fetching, setFetching] = useState(false)
+  const [curCommitId,setCurCommitId] = useState(null)
+  const [messages,setMessages] = useState(null)
+  const { i18n } = useTranslation();
+  const [_, forceUpdate] = useState(); // 用于触发重新渲染
+  const { t } = useTranslation() // 获取翻译函数  
   function handleCompile() {
     fetch(`${config.apiBaseUrl}/keymap`, {
       method: 'POST',
@@ -32,15 +40,25 @@ function App() {
       body: JSON.stringify(editingKeymap || keymap)
     })
   }
+  const handleLanguageChange = async (lang) => {
+    await i18n.changeLanguage(lang);
+    console.log("language changed....");
+    // forceUpdate({}); // 强制更新所有翻译内容
+  };
 
   const handleCommitChanges = useMemo(() => function() {
     const { repository, branch } = sourceOther.github
 
     ;(async function () {
       setSaving(true)
-      await github.commitChanges(repository, branch, layout, editingKeymap)
+      const res = await github.commitChanges(repository, branch, layout, editingKeymap)
       setSaving(false)
-
+      if(res.status==200){
+        setCurCommitId(res.data.commitid)
+      }else{
+        setCurCommitId(null)
+      }
+      
       setKeymap(editingKeymap)
       setEditingKeymap(null)
     })()
@@ -49,10 +67,49 @@ function App() {
     editingKeymap,
     sourceOther,
     setSaving,
+    setFetching,
     setKeymap,
-    setEditingKeymap
+    setEditingKeymap,
+    setCurCommitId
   ])
 
+
+  const dismiss = useMemo(() => function () {
+    setMessages(null)
+  }, [])
+
+  const handleFetchFirmware = useMemo(() => function() {
+    const { repository, branch } = sourceOther.github
+
+    ;(async function () {
+      setFetching(true)
+      const response = await github.fetchFirmware(repository, branch, curCommitId)
+      setFetching(false)
+      if(response.status==200 && !response.data.message){
+        const blob = new Blob([response.data], { type: 'application/zip' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${repository}-artifact.zip`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }else {
+        setMessages(response.data.message)
+            
+      }
+      
+    })()
+  }, [
+    layout,
+    editingKeymap,
+    sourceOther,
+    setSaving,
+    setFetching,
+    setKeymap,
+    setEditingKeymap,
+    setCurCommitId
+  ])
   const handleKeyboardSelected = useMemo(() => function(event) {
     const { source, layout, keymap, ...other } = event
 
@@ -61,12 +118,14 @@ function App() {
     setLayout(layout)
     setKeymap(keymap)
     setEditingKeymap(null)
+    setCurCommitId(null)
   }, [
     setSource,
     setSourceOther,
     setLayout,
     setKeymap,
-    setEditingKeymap
+    setEditingKeymap,
+    setCurCommitId
   ])
 
   const initialize = useMemo(() => {
@@ -80,12 +139,14 @@ function App() {
       behaviours.indexed = keyBy(behaviours, 'code')
 
       setDefinitions({ keycodes, behaviours })
+      setCurCommitId(null)
     }
-  }, [setDefinitions])
+  }, [setDefinitions,setCurCommitId])
 
   const handleUpdateKeymap = useMemo(() => function(keymap) {
     setEditingKeymap(keymap)
-  }, [setEditingKeymap])
+    setCurCommitId(null)
+  }, [setEditingKeymap,setCurCommitId])
 
   return (
     <>
@@ -94,19 +155,42 @@ function App() {
         <div id="actions">
           {source === 'local' && (
             <button disabled={!editingKeymap} onClick={handleCompile}>
-              Save Local
+              {t("LocalSave")}
             </button>
           )}
           {source === 'github' && (
             <button
-              title="Commit keymap changes to GitHub repository"
+              title={t("committing message")}
               disabled={!editingKeymap}
               onClick={handleCommitChanges}
             >
-              {saving ? 'Saving' : 'Commit Changes'}
-              {saving && <Spinner />}
+              {saving ? t('Committing') : t('Commit')}
+              { (saving) && <Spinner />}
             </button>
+            
           )}
+           {source === 'github' && (
+            <button
+              title={t("Download Frimware")}
+              disabled={!curCommitId}
+              onClick={handleFetchFirmware}
+            >
+              {fetching ? t("Downloading") : t("Download")}
+              {(fetching) && <Spinner />}
+            </button>
+            
+          )}
+          {
+            messages &&(
+              <ValidationErrors
+              title={"提醒"}
+              errors={[messages]}
+              otherRepoOrBranchAvailable={false}
+              onDismiss={dismiss}
+            />
+               
+            )
+          }
         </div>
         <DefinitionsContext.Provider value={definitions}>
           {layout && keymap && (
@@ -117,6 +201,7 @@ function App() {
             />
           )}
         </DefinitionsContext.Provider>
+         <LanguagePicker onChange={handleLanguageChange} />
       </Loader>
       <GitHubLink className="github-link" />
     </>

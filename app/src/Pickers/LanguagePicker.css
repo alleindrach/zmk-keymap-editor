@@ -1,0 +1,29 @@
+/* 定位到右上角 */
+.language-picker-container {
+  position: fixed;
+  top: 0px;
+  right: 20px;
+  z-index: 1000; /* 确保在最上层 */
+}
+
+/* 选择器样式 */
+.language-selector {
+  min-width: 120px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .language-picker-container {
+    top: 0px;
+    right: 10px;
+  }
+  .language-selector {
+    padding: 6px 8px;
+    min-width: 100px;
+  }
+}

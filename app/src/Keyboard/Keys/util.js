@@ -2,7 +2,7 @@ import get from 'lodash/get'
 import keyBy from 'lodash/keyBy'
 
 import { getBehaviourParams } from '../../keymap'
-
+import { useTranslation } from 'react-i18next' // 新增导入
 export function makeIndex (tree) {
   const index = []
   ;(function traverse(tree) {
@@ -33,6 +33,7 @@ export function isComplex(normalized, behaviourParams) {
 }
 
 export function createPromptMessage(param) {
+  
   const promptMapping = {
     layer: 'Select layer',
     mod: 'Select modifier',

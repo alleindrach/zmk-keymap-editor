@@ -10,30 +10,33 @@ import ValidationErrors from './ValidationErrors'
 import IconButton from '../../Common/IconButton'
 import Selector from '../../Common/Selector'
 import Spinner from '../../Common/Spinner'
-
+import { useTranslation } from 'react-i18next' // 新增导入
 function Login() {
+  const { t } = useTranslation() // 获取翻译函数
   return (
     <IconButton
       collection="brands"
       icon="github"
-      text="Login with GitHub"
+      text={t("Login with GitHub")}
       onClick={() => github.beginLoginFlow()}
     />
   )
 }
 
 function Install() {
+  const { t } = useTranslation() // 获取翻译函数
   return (
     <IconButton
       collection="brands"
       icon="github"
-      text="Add Repository"
+      text={t("Add Repository")}
       onClick={() => github.beginInstallAppFlow()}
     />
   )
 }
 
 function GithubPicker(props) {
+  const { t } = useTranslation() // 获取翻译函数
   const [state, setState] = useState({
     initialized: false,
     selectedRepoId: null,
@@ -191,7 +194,7 @@ function GithubPicker(props) {
     <>
       <Selector
         id="repo"
-        label="Repository"
+        label={t("Repository")}
         value={selectedRepoId}
         choices={repositoryChoices}
         onUpdate={id => setState(state => ({
@@ -205,7 +208,7 @@ function GithubPicker(props) {
       ) : branches.length && (
         <Selector
           id="branch"
-          label="Branch"
+          label={t("Branch")}
           value={selectedBranchName}
           choices={branchChoices}
           onUpdate={name => setState(state => ({
@@ -230,7 +233,7 @@ function GithubPicker(props) {
       )}
       {loadWarnings && (
         <ValidationErrors
-          title="Warning"
+          title={t("Warning")}
           errors={loadWarnings}
           onDismiss={() => setState(state => ({ ...state, loadWarnings: null }))}
         />

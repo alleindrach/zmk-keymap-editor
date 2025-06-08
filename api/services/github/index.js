@@ -16,7 +16,8 @@ const {
 const {
   InvalidRepoError,
   fetchKeyboardFiles,
-  commitChanges
+  commitChanges,
+  fetchFirmware
 } = require('./files')
 
 module.exports = {
@@ -31,5 +32,6 @@ module.exports = {
   fetchRepoBranches,
   InvalidRepoError,
   fetchKeyboardFiles,
-  commitChanges
+  commitChanges,
+  fetchFirmware
 }

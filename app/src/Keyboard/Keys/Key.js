@@ -22,12 +22,13 @@ import styles from './styles.module.css'
 import Modal from '../../Common/Modal'
 import ValuePicker from '../../ValuePicker'
 
+import { useTranslation } from 'react-i18next' // 新增导入
 function Key(props) {
   const { getSearchTargets, sources } = useContext(SearchContext)
   const { position, rotation, size } = props
   const { label, value, params, onUpdate } = props
   const [editing, setEditing] = useState(null)
-
+  const { t } = useTranslation() // 获取翻译函数
   const bind = value
   const behaviour = get(sources.behaviours, bind)
   const behaviourParams = getBehaviourParams(params, behaviour)
@@ -111,8 +112,8 @@ function Key(props) {
           value={editing.code}
           param={editing.param}
           choices={editing.targets}
-          prompt={createPromptMessage(editing.param)}
-          searchKey="code"
+          prompt={t(createPromptMessage(editing.param))}
+          searchKey = {editing.param === "layer"?"symbol":"code"}
           onSelect={handleSelectValue}
           onCancel={() => setEditing(null)}
         />

@@ -1,0 +1,39 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Chrome",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://localhost:3000/", // npm run dev启动时的Local地址
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "LocalServer",
+            "skipFiles": ["node_modules/**"],
+            "program": "${workspaceFolder}/index.js" // 修改为你的入口文件
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "LocalFront",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run", "start"],
+            "cwd": "${workspaceFolder}/app",
+            
+            "env": {
+                "PORT":"3000",
+                "REACT_APP_ENABLE_LOCAL": "true",
+                "REACT_APP_ENABLE_GITHUB": "true",
+                "REACT_APP_GITHUB_APP_NAME": "zmk-keyboard-editor",
+                "REACT_APP_API_BASE_URL": "http://localhost:8080",
+                "REACT_APP_APP_BASE_URL": "http://localhost:3000"
+            }
+        }
+    ]
+}

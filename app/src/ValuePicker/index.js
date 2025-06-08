@@ -1,7 +1,7 @@
 import fuzzysort from 'fuzzysort'
 import PropTypes from 'prop-types'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-
+import { useTranslation } from 'react-i18next' // 新增导入
 import style from './style.module.css'
 
 const cycle = (array, index, step=1) => {
@@ -23,7 +23,7 @@ function scrollIntoViewIfNeeded (element, alignToTop) {
 function ValuePicker (props) {
   const { value, prompt, choices, searchKey, searchThreshold, showAllThreshold } = props
   const { onCancel, onSelect } = props
-
+  const { t } = useTranslation() // 获取翻译函数
   const listRef = useRef(null)
 
   const [query, setQuery] = useState(null)
@@ -173,7 +173,7 @@ function ValuePicker (props) {
       </ul>
       {choices.length > searchThreshold && (
         <div className={style['choices-counter']}>
-          Total choices: {choices.length}.
+          {t("Total choices:")} {choices.length}.
           {enableShowAllButton && (
             <button onClick={setShowAll(true)}>Show all</button>
           )}

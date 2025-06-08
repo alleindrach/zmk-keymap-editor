@@ -10,7 +10,8 @@ const {
   fetchKeyboardFiles,
   createOauthFlowUrl,
   createOauthReturnUrl,
-  commitChanges
+  commitChanges,
+  fetchFirmware
 } = require('../services/github')
 const { createInstallationToken } = require('../services/github/auth')
 const { MissingRepoFile, findCodeKeymap } = require('../services/github/files')
@@ -32,6 +33,7 @@ const authorize = async (req, res) => {
       res.sendStatus(500)
     }
   } else {
+    console.log("createOauthFlowUrl....")
     res.redirect(createOauthFlowUrl())
   }
 }
@@ -130,14 +132,37 @@ const getKeyboardFiles = async (req, res, next) => {
 const updateKeyboardFiles = async (req, res, next) => {
   const { installationId, repository, branch } = req.params
   const { keymap, layout } = req.body
-
+  let commitid; // 在try外部声明变量
   try {
-    await commitChanges(installationId, repository, branch, layout, keymap)
+    commitid = await commitChanges(installationId, repository, branch, layout, keymap)
+     // 返回200状态码和commitid
+    res.status(200).json({
+      status: 'success',
+      commitid: commitid
+    });
   } catch (err) {
     return next(err)
   }
 
-  res.sendStatus(200)
+}
+
+const downloadFirmware = async (req, res, next) => {
+  const { installationId, repository, branch,commitid} = req.params
+
+  try {
+    apiRes = await fetchFirmware(installationId, repository, branch, commitid)
+    if(apiRes.status >0){
+        res.status(200)
+        apiRes.artifactDownloadStream.pipe(res);
+    }else{
+        res.status(200).json({
+          message: apiRes.message
+        });
+    }
+  } catch (err) {
+    return next(err)
+  }
+
 }
 
 const receiveWebhook = (req, res) => {
@@ -149,6 +174,7 @@ router.get('/installation/:installationId/:repository/branches', authenticate, g
 router.get('/installation', authenticate, getInstallation)
 router.get('/keyboard-files/:installationId/:repository', authenticate, getKeyboardFiles)
 router.post('/keyboard-files/:installationId/:repository/:branch', authenticate, updateKeyboardFiles)
+router.post('/download-firmware/:installationId/:repository/:branch/:commitid', authenticate, downloadFirmware)
 router.post('/webhook', receiveWebhook)
 router.use(handleError)
 

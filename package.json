@@ -21,9 +21,12 @@
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
     "http-link-header": "^1.0.3",
+    "i18next": "^25.2.1",
+    "i18next-browser-languagedetector": "^8.1.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "react-i18next": "^15.5.2"
   },
   "devDependencies": {
     "eslint": "^8.14.0",
