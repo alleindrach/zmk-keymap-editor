@@ -14,7 +14,7 @@ import GitHubLink from './GitHubLink'
 import Loader from './Common/Loader'
 import github from './Pickers/Github/api'
 import ValidationErrors from './Pickers/Github/ValidationErrors'
-import LanguagePicker from "./Pickers/LanguagePicker"
+
 import { useTranslation } from 'react-i18next';
 
 function App() {
@@ -40,11 +40,7 @@ function App() {
       body: JSON.stringify(editingKeymap || keymap)
     })
   }
-  const handleLanguageChange = async (lang) => {
-    await i18n.changeLanguage(lang);
-    console.log("language changed....");
-    // forceUpdate({}); // 强制更新所有翻译内容
-  };
+
 
   const handleCommitChanges = useMemo(() => function() {
     const { repository, branch } = sourceOther.github
@@ -83,22 +79,24 @@ function App() {
 
     ;(async function () {
       setFetching(true)
-      const response = await github.fetchFirmware(repository, branch, curCommitId)
-      setFetching(false)
-      if(response.status==200 && !response.data.message){
-        const blob = new Blob([response.data], { type: 'application/zip' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${repository}-artifact.zip`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      }else {
-        setMessages(response.data.message)
-            
+      try{
+        const response = await github.fetchFirmware(repository, branch, curCommitId)
+        
+          if(response.status==200 && !response.data.message){
+            const blob = new Blob([response.data], { type: 'application/zip' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${repository}-artifact.zip`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+          }
+      }catch(err){
+        setMessages("固件编译中....")
+      }finally{
+        setFetching(false)
       }
-      
     })()
   }, [
     layout,
@@ -180,10 +178,11 @@ function App() {
             </button>
             
           )}
+
           {
             messages &&(
               <ValidationErrors
-              title={"提醒"}
+              title={t("Warning")}
               errors={[messages]}
               otherRepoOrBranchAvailable={false}
               onDismiss={dismiss}
@@ -201,7 +200,7 @@ function App() {
             />
           )}
         </DefinitionsContext.Provider>
-         <LanguagePicker onChange={handleLanguageChange} />
+         
       </Loader>
       <GitHubLink className="github-link" />
     </>

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  
   "scripts": {
     "postinstall": "cd app && npm install",
     "start": "node index.js",
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "eslint": "^8.14.0",
-    "eslint-config-standard": "^17.0.0"
+    "eslint-config-standard": "^17.0.0",
+    "gh-pages": "^6.3.0"
   }
 }

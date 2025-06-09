@@ -1,6 +1,7 @@
 import DialogBox from "../../Common/DialogBox"
 import Modal from "../../Common/Modal"
-
+import './ValidationErrors.css'; // 新增样式文件
+import { useTranslation } from 'react-i18next' // 新增导入
 function fileFromTitle(title) {
   if (title === 'InfoValidationError') {
     return 'config/info.json'
@@ -9,31 +10,24 @@ function fileFromTitle(title) {
   }
 }
 
-const listStyle = {
-  maxHeight: '300px',
-  overflow: 'auto',
-  padding: '10px',
-  fontFamily: 'monospace',
-  fontSize: '80%',
-  backgroundColor: '#efefef'
-}
 
-const listItemStyle = { margin: '10px' }
+
+
 
 export default function ValidationErrors(props) {
   const { onDismiss, title, errors,  otherRepoOrBranchAvailable = false } = props
   const file = fileFromTitle(title)
-
+  const { t } = useTranslation() // 获取翻译函数
   return (
     <Modal>
       <DialogBox onDismiss={onDismiss}>
-        <h2>{title}</h2>
+        <h2 className='header'>{title}</h2>
         {file && (
-          <p>Errors in the file <code>{file}</code>.</p>
+          <p>t("Errors in the file") <code>{file}</code>.</p>
         )}
-        <ul style={listStyle}>
+        <ul className='list'>
           {errors.map((error, i) => (
-            <li key={i} style={listItemStyle}>
+            <li key={i} className='listItem'>
               {error}
             </li>
           ))}
@@ -41,8 +35,7 @@ export default function ValidationErrors(props) {
 
         {otherRepoOrBranchAvailable && (
           <p>
-            If you have another branch or repository the the required metadata files
-            you may switch to them instead.
+           t('invalid-repo.message-p3')
           </p>
         )}
       </DialogBox>

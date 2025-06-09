@@ -12,6 +12,10 @@
 	font-weight: bold;
 	border-bottom: dotted 1px;
 	text-align: center;
+	background-color:  rgba(60, 179, 113, 0.3) ;
+	border-top-right-radius: 14px;
+	height: 30px;
+	align-content: center;
 }
 .dialog input {
 	display: block;
@@ -85,6 +89,7 @@ ul.results::-webkit-scrollbar-thumb:hover {
   font-size: 10px;
   border-top: dotted 1px;
   padding-left: 13px;
+  text-align: right;
 }
 
 .choices-counter a {

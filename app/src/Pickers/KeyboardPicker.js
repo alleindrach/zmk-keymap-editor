@@ -1,3 +1,4 @@
+import i18n from  '../i18n/i18n' // 必须在其他组件之前导入
 import compact from 'lodash/compact'
 import { useEffect, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
@@ -7,6 +8,7 @@ import { loadLayout } from '../layout.js'
 import { loadKeymap } from '../keymap.js'
 import Selector from "../Common/Selector"
 import GithubPicker from './Github/Picker'
+import LanguagePicker from "./LanguagePicker"
 import { useTranslation } from 'react-i18next' // 新增导入
 const sourceChoices = compact([
   config.enableLocal ? { id: 'local', name: 'Local' } : null,
@@ -47,7 +49,11 @@ function KeyboardPicker(props) {
 
     onSelect({ source, layout, keymap, ...rest })
   }, [onSelect, source,t])
-
+  const handleLanguageChange = async (lang) => {
+    await i18n.changeLanguage(lang);
+    console.log("language changed....");
+    // forceUpdate({}); // 强制更新所有翻译内容
+  };
   const fetchLocalKeyboard = useMemo(() => async function() {
     setLoading(true)
     setError(null)
@@ -88,6 +94,7 @@ function KeyboardPicker(props) {
       {source === 'github' && (
         <GithubPicker onSelect={handleKeyboardSelected} />
       )}
+      <LanguagePicker onChange={handleLanguageChange} />
     </div>
   )
 }

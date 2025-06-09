@@ -33,5 +33,6 @@
         "message-p2": "This app depends on some additional metadata to render the keymap.For an example repository ready to use now or metadata you can apply to your own keyboard repo, have a look at",
         "message-p3": "If you have another branch or repository the the required metadata files you may switch to them instead."
     },
-    "Total choices:": "Total choices"
+    "Total choices:": "Total choices",
+    "Errors in the file": "Errors in the file"
 }

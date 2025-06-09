@@ -25,15 +25,7 @@
             "runtimeExecutable": "npm",
             "runtimeArgs": ["run", "start"],
             "cwd": "${workspaceFolder}/app",
-            
-            "env": {
-                "PORT":"3000",
-                "REACT_APP_ENABLE_LOCAL": "true",
-                "REACT_APP_ENABLE_GITHUB": "true",
-                "REACT_APP_GITHUB_APP_NAME": "zmk-keyboard-editor",
-                "REACT_APP_API_BASE_URL": "http://localhost:8080",
-                "REACT_APP_APP_BASE_URL": "http://localhost:3000"
-            }
+           
         }
     ]
 }

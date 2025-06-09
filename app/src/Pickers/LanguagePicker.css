@@ -3,7 +3,7 @@
   position: fixed;
   top: 0px;
   right: 20px;
-  z-index: 1000; /* 确保在最上层 */
+  /* z-index: 1000; 确保在最上层 */
 }
 
 /* 选择器样式 */

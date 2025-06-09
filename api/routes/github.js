@@ -155,7 +155,7 @@ const downloadFirmware = async (req, res, next) => {
         res.status(200)
         apiRes.artifactDownloadStream.pipe(res);
     }else{
-        res.status(200).json({
+        res.status(300).json({
           message: apiRes.message
         });
     }

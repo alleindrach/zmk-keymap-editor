@@ -32,6 +32,7 @@ function LanguagePicker({ onChange }) {
 
   const handleLanguageChange = useCallback((newLanguage) => {
     localStorage.setItem('selectedLanguage', newLanguage);
+    setCurrentLanguage(newLanguage);
     onChange(newLanguage);
   }, [onChange]);
 
