@@ -12,8 +12,8 @@ const app = express()
 const { origin } = new URL(config.APP_BASE_URL)
 
 app.use(bodyParser.json())
-app.use(cors({ origin }))
-
+// app.use(cors({ origin }))
+// app.use(cors());
 if (config.ENABLE_DEV_SERVER) {
   applicationInit(app)
 }

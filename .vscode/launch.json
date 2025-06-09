@@ -21,6 +21,14 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "LocalServer2",
+            "skipFiles": ["node_modules/**"],
+            "cwd": "${workspaceFolder}/api",
+            "program": "server.js" // 修改为你的入口文件
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "LocalFront",
             "runtimeExecutable": "npm",
             "runtimeArgs": ["run", "start"],
