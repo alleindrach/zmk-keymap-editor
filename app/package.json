@@ -2,7 +2,7 @@
   "name": "app",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://alleindrach.github.io/keymap-editor",
+  "homepage": "https://alleindrach.github.io/zmk-keymap-editor/",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.1.1",
     "@testing-library/jest-dom": "^5.16.4",
@@ -20,7 +20,7 @@
   },
   "scripts": {
     "predeploy": "npm run build",  
-    "deploy": "gh-pages -d build", 
+    "deploy": "gh-pages -d build -r git@github.com:alleindrach/zmk-keymap-editor.git -b gh-pages", 
     "start": "react-scripts start",
     "build": "react-scripts build",
     "build:production": "env-cmd -f .env.production npm run build",
