@@ -84,11 +84,12 @@ const getInstallation = async (req, res, next) => {
 }
 
 const getBranches = async (req, res, next) => {
-  const { installationId, repository } = req.params
-
+  const { installationId,owner, repository } = req.params
+  console.log("owner:",owner,"repository:",repository)
   try {
     const { data: { token: installationToken } } = await createInstallationToken(installationId)
-    const branches = await fetchRepoBranches(installationToken, repository)
+    console.log("token:",installationToken)
+    const branches = await fetchRepoBranches(installationToken, owner, repository)
 
     res.json(branches)
   } catch (err) {
@@ -97,11 +98,11 @@ const getBranches = async (req, res, next) => {
 }
 
 const getKeyboardFiles = async (req, res, next) => {
-  const { installationId, repository } = req.params
+  const { installationId, owner, repository } = req.params
   const { branch } = req.query
 
   try {
-    const { info, keymap } = await fetchKeyboardFiles(installationId, repository, branch)
+    const { info, keymap } = await fetchKeyboardFiles(installationId, owner, repository, branch)
     validateInfoJson(info)
     validateKeymapJson(keymap)
 
@@ -111,14 +112,14 @@ const getKeyboardFiles = async (req, res, next) => {
     })
   } catch (err) {
     if (err instanceof MissingRepoFile) {
-      console.error(`Validation error in ${repository} (${branch}):`, err.constructor.name, err.errors)
+      console.error(`Validation error in ${owner}  ${repository} (${branch}):`, err.constructor.name, err.errors)
       return res.status(400).json({
         name: err.constructor.name,
         path: err.path,
         errors: err.errors
       })
     } else if (err instanceof InfoValidationError || err instanceof KeymapValidationError) {
-      console.error(`Validation error in ${repository} (${branch}):`, err.constructor.name, err.errors)
+      console.error(`Validation error in ${owner} ${repository} (${branch}):`, err.constructor.name, err.errors)
       return res.status(400).json({
         name: err.name,
         errors: err.errors
@@ -130,11 +131,11 @@ const getKeyboardFiles = async (req, res, next) => {
 }
 
 const updateKeyboardFiles = async (req, res, next) => {
-  const { installationId, repository, branch } = req.params
+  const { installationId,owner, repository, branch } = req.params
   const { keymap, layout } = req.body
   let commitid; // 在try外部声明变量
   try {
-    commitid = await commitChanges(installationId, repository, branch, layout, keymap)
+    commitid = await commitChanges(installationId, owner, repository, branch, layout, keymap)
      // 返回200状态码和commitid
     res.status(200).json({
       status: 'success',
@@ -147,10 +148,10 @@ const updateKeyboardFiles = async (req, res, next) => {
 }
 
 const downloadFirmware = async (req, res, next) => {
-  const { installationId, repository, branch,commitid} = req.params
+  const { installationId,owner, repository, branch,commitid} = req.params
 
   try {
-    apiRes = await fetchFirmware(installationId, repository, branch, commitid)
+    apiRes = await fetchFirmware(installationId,owner, repository, branch, commitid)
     if(apiRes.status >0){
         res.status(200)
         apiRes.artifactDownloadStream.pipe(res);
@@ -168,13 +169,13 @@ const downloadFirmware = async (req, res, next) => {
 const receiveWebhook = (req, res) => {
   res.sendStatus(200)
 }
-
+ 
 router.get('/authorize', authorize)
-router.get('/installation/:installationId/:repository/branches', authenticate, getBranches)
+router.get('/installation/:installationId/:owner/:repository/branches', authenticate, getBranches)
 router.get('/installation', authenticate, getInstallation)
-router.get('/keyboard-files/:installationId/:repository', authenticate, getKeyboardFiles)
-router.post('/keyboard-files/:installationId/:repository/:branch', authenticate, updateKeyboardFiles)
-router.post('/download-firmware/:installationId/:repository/:branch/:commitid', authenticate, downloadFirmware)
+router.get('/keyboard-files/:installationId/:owner/:repository', authenticate, getKeyboardFiles)
+router.post('/keyboard-files/:installationId/:owner/:repository/:branch', authenticate, updateKeyboardFiles)
+router.post('/download-firmware/:installationId/:owner/:repository/:branch/:commitid', authenticate, downloadFirmware)
 router.post('/webhook', receiveWebhook)
 router.use(handleError)
 

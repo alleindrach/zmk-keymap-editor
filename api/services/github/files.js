@@ -13,17 +13,17 @@ class MissingRepoFile extends Error {
   }
 }
 
-async function fetchKeyboardFiles (installationId, repository, branch) {
+async function fetchKeyboardFiles (installationId, owner, repository, branch) {
   const { data: { token: installationToken } } = await auth.createInstallationToken(installationId)
-  const { data: info } = await fetchFile(installationToken, repository, 'config/info.json', { raw: true, branch })
-  const keymap = await fetchKeymap(installationToken, repository, branch)
-  const originalCodeKeymap = await findCodeKeymap(installationToken, repository, branch)
+  const { data: info } = await fetchFile(installationToken,owner, repository, 'config/info.json', { raw: true, branch })
+  const keymap = await fetchKeymap(installationToken,owner, repository, branch)
+  const originalCodeKeymap = await findCodeKeymap(installationToken,owner, repository, branch)
   return { info, keymap, originalCodeKeymap }
 }
 
-async function fetchKeymap (installationToken, repository, branch) {
+async function fetchKeymap (installationToken,owner, repository, branch) {
   try {
-    const { data : keymap } = await fetchFile(installationToken, repository, 'config/keymap.json', { raw: true, branch })
+    const { data : keymap } = await fetchFile(installationToken,owner, repository, 'config/keymap.json', { raw: true, branch })
     return keymap
   } catch (err) {
     if (err instanceof MissingRepoFile) {
@@ -40,9 +40,9 @@ async function fetchKeymap (installationToken, repository, branch) {
   }
 }
 
-async function fetchFile (installationToken, repository, path, options = {}) {
+async function fetchFile (installationToken,owner, repository, path, options = {}) {
   const { raw = false, branch = null } = options
-  const url = `/repos/${repository}/contents/${path}`
+  const url = `/repos/${owner}/${repository}/contents/${path}`
   const params = {}
 
   if (branch) {
@@ -59,11 +59,11 @@ async function fetchFile (installationToken, repository, path, options = {}) {
   }
 }
 
-async function findCodeKeymap (installationToken, repository, branch) {
+async function findCodeKeymap (installationToken,owner, repository, branch) {
   // Assume that the relevant files are under `config/` and not a complicated
   // directory structure, and that there are fewer than 1000 files in this path
   // (a limitation of GitHub's repo contents API).
-  const { data: directory } = await fetchFile(installationToken, repository, 'config', { branch })
+  const { data: directory } = await fetchFile(installationToken, owner, repository, 'config', { branch })
   const originalCodeKeymap = directory.find(file => file.name.toLowerCase().endsWith('.keymap'))
 
   if (!originalCodeKeymap) {
@@ -73,30 +73,30 @@ async function findCodeKeymap (installationToken, repository, branch) {
   return originalCodeKeymap
 }
 
-async function findCodeKeymapTemplate (installationToken, repository, branch) {
+async function findCodeKeymapTemplate (installationToken, owner, repository, branch) {
   // Assume that the relevant files are under `config/` and not a complicated
   // directory structure, and that there are fewer than 1000 files in this path
   // (a limitation of GitHub's repo contents API).
-  const { data: directory } = await fetchFile(installationToken, repository, 'config', { branch })
+  const { data: directory } = await fetchFile(installationToken,owner, repository, 'config', { branch })
   const template = directory.find(file => file.name.toLowerCase().endsWith('.keymap.template'))
 
   if (template) {
-    const { data: content } = await fetchFile(installationToken, repository, template.path, { branch, raw: true })
+    const { data: content } = await fetchFile(installationToken, owner, repository, template.path, { branch, raw: true })
     return content
   }
 }
 
-async function commitChanges (installationId, repository, branch, layout, keymap) {
+async function commitChanges (installationId,owner, repository, branch, layout, keymap) {
   const { data: { token: installationToken } } = await auth.createInstallationToken(installationId)
-  const template = await findCodeKeymapTemplate(installationToken, repository, branch)
+  const template = await findCodeKeymapTemplate(installationToken,owner, repository, branch)
 
   const generatedKeymap = zmk.generateKeymap(layout, keymap, template)
 
-  const originalCodeKeymap = await findCodeKeymap(installationToken, repository, branch)
-  const { data: {sha, commit} } = await api.request({ url: `/repos/${repository}/commits/${branch}`, token: installationToken })
+  const originalCodeKeymap = await findCodeKeymap(installationToken, owner, repository, branch)
+  const { data: {sha, commit} } = await api.request({ url: `/repos/${owner}/${repository}/commits/${branch}`, token: installationToken })
 
   const { data: { sha: newTreeSha } } = await api.request({
-    url: `/repos/${repository}/git/trees`,
+    url: `/repos/${owner}/${repository}/git/trees`,
     method: 'POST',
     token: installationToken,
     data: {
@@ -119,7 +119,7 @@ async function commitChanges (installationId, repository, branch, layout, keymap
   })
 
   const { data: { sha: newSha } } = await api.request({
-    url: `/repos/${repository}/git/commits`,
+    url: `/repos/${owner}/${repository}/git/commits`,
     method: 'POST',
     token: installationToken,
     data: {
@@ -130,7 +130,7 @@ async function commitChanges (installationId, repository, branch, layout, keymap
   })
 
   await api.request({
-    url: `/repos/${repository}/git/refs/heads/${branch}`,
+    url: `/repos/${owner}/${repository}/git/refs/heads/${branch}`,
     method: 'PATCH',
     token: installationToken,
     data: {
@@ -141,12 +141,12 @@ async function commitChanges (installationId, repository, branch, layout, keymap
   return newSha
 }
 
-async function fetchFirmware (installationId, repository, branch, commitId) {
+async function fetchFirmware (installationId,owner, repository, branch, commitId) {
   const { data: { token: installationToken } } = await auth.createInstallationToken(installationId)
  
   try {
       const { data } = await api.request({
-        url: `/repos/${repository}/actions/artifacts`,
+        url: `/repos/${owner}/${repository}/actions/artifacts`,
         method: 'GET',
         token: installationToken
       });
@@ -159,7 +159,7 @@ async function fetchFirmware (installationId, repository, branch, commitId) {
 
         // 8. 下载Artifact
         const downloadResponse = await api.request({
-          url: `/repos/${repository}/actions/artifacts/${artifactFound.id}/zip`,
+          url: `/repos/${owner}/${repository}/actions/artifacts/${artifactFound.id}/zip`,
           method: 'GET',
           token: installationToken,
           responseType: 'stream' // 重要：对于文件下载

@@ -85,9 +85,10 @@ export class API extends EventEmitter {
 
   async fetchRepoBranches(repo) {
     const installation = encodeURIComponent(this.repoInstallationMap[repo.full_name])
-    const repository = encodeURIComponent(repo.full_name)
+    const [owner, repository] = repo.full_name.split('/');
+
     const { data } = await this._request(
-      `/github/installation/${installation}/${repository}/branches`
+      `/github/installation/${installation}/${owner}/${repository}/branches`
     )
 
     return data
@@ -95,8 +96,9 @@ export class API extends EventEmitter {
 
   async fetchLayoutAndKeymap(repo, branch) {
     const installation = encodeURIComponent(this.repoInstallationMap[repo])
-    const repository = encodeURIComponent(repo)
-    const url = new URL(`${config.apiBaseUrl}/github/keyboard-files/${installation}/${repository}`)
+    
+    const [owner, repository] = repo.split('/');
+    const url = new URL(`${config.apiBaseUrl}/github/keyboard-files/${installation}/${owner}/${repository}`)
 
     if (branch) {
       url.search = new URLSearchParams({ branch }).toString()
@@ -121,10 +123,10 @@ export class API extends EventEmitter {
 
   commitChanges(repo, branch, layout, keymap) {
     const installation = encodeURIComponent(this.repoInstallationMap[repo])
-    const repository = encodeURIComponent(repo)
-
+   
+    const [owner, repository] = repo.split('/');
     return this._request({
-      url: `/github/keyboard-files/${installation}/${repository}/${encodeURIComponent(branch)}`,
+      url: `/github/keyboard-files/${installation}/${owner}/${repository}/${encodeURIComponent(branch)}`,
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       data: { layout, keymap }
@@ -134,10 +136,10 @@ export class API extends EventEmitter {
 
   fetchFirmware(repo, branch, commitId) {
     const installation = encodeURIComponent(this.repoInstallationMap[repo])
-    const repository = encodeURIComponent(repo)
+    const [owner, repository] = repo.split('/');
 
     return this._request({
-      url: `/github/download-firmware/${installation}/${repository}/${encodeURIComponent(branch)}/${encodeURIComponent(commitId)}`,
+      url: `/github/download-firmware/${installation}/${owner}/${repository}/${encodeURIComponent(branch)}/${encodeURIComponent(commitId)}`,
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       responseType: 'arraybuffer', // 关键修改：使用 arraybuffer 接收二进制

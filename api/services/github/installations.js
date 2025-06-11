@@ -40,8 +40,8 @@ async function fetchInstallationRepos (userToken) {
   }
 }
 
-async function fetchRepoBranches (installationToken, repo) {
-  const initialPage = `/repos/${repo}/branches`
+async function fetchRepoBranches (installationToken, owner,repo) {
+  const initialPage = `/repos/${owner}/${repo}/branches`
   const branches = []
   
   let url = initialPage
