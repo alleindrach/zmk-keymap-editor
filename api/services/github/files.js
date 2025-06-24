@@ -13,17 +13,17 @@ class MissingRepoFile extends Error {
   }
 }
 
-async function fetchKeyboardFiles (installationId, owner, repository, branch) {
+async function fetchKeyboardFiles (installationId, owner, repository, shield, branch) {
   const { data: { token: installationToken } } = await auth.createInstallationToken(installationId)
-  const { data: info } = await fetchFile(installationToken,owner, repository, 'config/info.json', { raw: true, branch })
-  const keymap = await fetchKeymap(installationToken,owner, repository, branch)
-  const originalCodeKeymap = await findCodeKeymap(installationToken,owner, repository, branch)
+  const { data: info } = await fetchFile(installationToken,owner, repository, `config/boards/shields/${shield}/info.json`, { raw: true, branch })
+  const keymap = await fetchKeymap(installationToken,owner, repository, shield, branch)
+  const originalCodeKeymap = await findCodeKeymap(installationToken,owner, repository,shield, branch)
   return { info, keymap, originalCodeKeymap }
 }
 
-async function fetchKeymap (installationToken,owner, repository, branch) {
+async function fetchKeymap (installationToken,owner, repository, shield, branch) {
   try {
-    const { data : keymap } = await fetchFile(installationToken,owner, repository, 'config/keymap.json', { raw: true, branch })
+    const { data : keymap } = await fetchFile(installationToken,owner, repository, `config/boards/shields/${shield}/keymap.json`, { raw: true, branch })
     return keymap
   } catch (err) {
     if (err instanceof MissingRepoFile) {
@@ -58,12 +58,24 @@ async function fetchFile (installationToken,owner, repository, path, options = {
     }
   }
 }
-
-async function findCodeKeymap (installationToken,owner, repository, branch) {
+async function fetchShields (installationToken,owner, repository, branch) {
   // Assume that the relevant files are under `config/` and not a complicated
   // directory structure, and that there are fewer than 1000 files in this path
   // (a limitation of GitHub's repo contents API).
-  const { data: directory } = await fetchFile(installationToken, owner, repository, 'config', { branch })
+  const { data: directory } = await fetchFile(installationToken, owner, repository, 'config/boards/shields', { branch })
+  const originalCodeKeymap = directory.filter(item => item.type === 'dir');
+
+  if (!originalCodeKeymap) {
+    throw new MissingRepoFile('config/boards/shields')
+  }
+
+  return originalCodeKeymap
+}
+async function findCodeKeymap (installationToken,owner, repository,shield, branch) {
+  // Assume that the relevant files are under `config/` and not a complicated
+  // directory structure, and that there are fewer than 1000 files in this path
+  // (a limitation of GitHub's repo contents API).
+  const { data: directory } = await fetchFile(installationToken, owner, repository, `config/boards/shields/${shield}`, { branch })
   const originalCodeKeymap = directory.find(file => file.name.toLowerCase().endsWith('.keymap'))
 
   if (!originalCodeKeymap) {
@@ -73,11 +85,11 @@ async function findCodeKeymap (installationToken,owner, repository, branch) {
   return originalCodeKeymap
 }
 
-async function findCodeKeymapTemplate (installationToken, owner, repository, branch) {
+async function findCodeKeymapTemplate (installationToken, owner, repository,shield, branch) {
   // Assume that the relevant files are under `config/` and not a complicated
   // directory structure, and that there are fewer than 1000 files in this path
   // (a limitation of GitHub's repo contents API).
-  const { data: directory } = await fetchFile(installationToken,owner, repository, 'config', { branch })
+  const { data: directory } = await fetchFile(installationToken,owner, repository, `config/boards/shields/${shield}`,  { branch })
   const template = directory.find(file => file.name.toLowerCase().endsWith('.keymap.template'))
 
   if (template) {
@@ -86,13 +98,13 @@ async function findCodeKeymapTemplate (installationToken, owner, repository, bra
   }
 }
 
-async function commitChanges (installationId,owner, repository, branch, layout, keymap) {
+async function commitChanges (installationId,owner, repository,shield, branch, layout, keymap) {
   const { data: { token: installationToken } } = await auth.createInstallationToken(installationId)
-  const template = await findCodeKeymapTemplate(installationToken,owner, repository, branch)
+  const template = await findCodeKeymapTemplate(installationToken,owner, repository,shield, branch)
 
   const generatedKeymap = zmk.generateKeymap(layout, keymap, template)
 
-  const originalCodeKeymap = await findCodeKeymap(installationToken, owner, repository, branch)
+  const originalCodeKeymap = await findCodeKeymap(installationToken, owner, repository,shield,branch)
   const { data: {sha, commit} } = await api.request({ url: `/repos/${owner}/${repository}/commits/${branch}`, token: installationToken })
 
   const { data: { sha: newTreeSha } } = await api.request({
@@ -195,5 +207,6 @@ module.exports = {
   fetchKeyboardFiles,
   findCodeKeymap,
   commitChanges,
-  fetchFirmware
+  fetchFirmware,
+  fetchShields
 }

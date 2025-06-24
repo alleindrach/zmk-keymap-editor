@@ -1,7 +1,11 @@
 const process = require('process')
-require('dotenv/config')
+const envFile = process.env.NODE_ENV === 'production' 
+  ? '.env' 
+  : '.env.development';
 
+require('dotenv').config({ path: envFile });
 const PORT = process.env.PORT || 8080
+const ENABLE_LOCAL_SERVER =  process.env.ENABLE_LOCAL_SERVER
 const ENABLE_DEV_SERVER = process.env.ENABLE_DEV_SERVER
 const ENABLE_GITHUB = process.env.ENABLE_GITHUB
 const GITHUB_APP_NAME = process.env.GITHUB_APP_NAME
@@ -22,5 +26,6 @@ module.exports = {
   GITHUB_CLIENT_ID,
   GITHUB_CLIENT_SECRET,
   GITHUB_OAUTH_CALLBACK_URL,
-  APP_BASE_URL
+  APP_BASE_URL,
+  ENABLE_LOCAL_SERVER
 }

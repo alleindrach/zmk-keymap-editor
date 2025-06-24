@@ -94,16 +94,29 @@ export class API extends EventEmitter {
     return data
   }
 
-  async fetchLayoutAndKeymap(repo, branch) {
+  async fetchShields(repo,branch) {
+    const installation = encodeURIComponent(this.repoInstallationMap[repo])
+    const [owner, repository] = repo.split('/');
+
+    const { data } = await this._request(
+      `/github/installation/${installation}/${owner}/${repository}/${branch}/shields`
+    )
+
+    return data
+  }
+
+  async fetchLayoutAndKeymap(repo, branch,shield) {
     const installation = encodeURIComponent(this.repoInstallationMap[repo])
     
     const [owner, repository] = repo.split('/');
     const url = new URL(`${config.apiBaseUrl}/github/keyboard-files/${installation}/${owner}/${repository}`)
 
-    if (branch) {
-      url.search = new URLSearchParams({ branch }).toString()
+    if (branch || shield) {
+      const params = new URLSearchParams();
+      if (branch) params.append('branch', branch);
+      if (shield) params.append('shield', shield);
+      url.search = params.toString();
     }
-
     try {
       const { data } = await this._request(url.toString())
       const defaultLayout = data.info.layouts.default || data.info.layouts[Object.keys(data.info.layouts)[0]]
@@ -121,12 +134,12 @@ export class API extends EventEmitter {
     }
   }
 
-  commitChanges(repo, branch, layout, keymap) {
+  commitChanges(repo, branch, shield, layout, keymap) {
     const installation = encodeURIComponent(this.repoInstallationMap[repo])
    
     const [owner, repository] = repo.split('/');
     return this._request({
-      url: `/github/keyboard-files/${installation}/${owner}/${repository}/${encodeURIComponent(branch)}`,
+      url: `/github/keyboard-files/${installation}/${owner}/${repository}/${encodeURIComponent(branch)}/${encodeURIComponent(shield)}`,
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       data: { layout, keymap }

@@ -43,11 +43,11 @@ function App() {
 
 
   const handleCommitChanges = useMemo(() => function() {
-    const { repository, branch } = sourceOther.github
+    const { repository, branch, shield } = sourceOther.github
 
     ;(async function () {
       setSaving(true)
-      const res = await github.commitChanges(repository, branch, layout, editingKeymap)
+      const res = await github.commitChanges(repository, branch, shield, layout, editingKeymap)
       setSaving(false)
       if(res.status==200){
         setCurCommitId(res.data.commitid)
@@ -75,7 +75,7 @@ function App() {
   }, [])
 
   const handleFetchFirmware = useMemo(() => function() {
-    const { repository, branch } = sourceOther.github
+    const { repository, branch,shield } = sourceOther.github
 
     ;(async function () {
       setFetching(true)

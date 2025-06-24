@@ -24,6 +24,7 @@
             "name": "LocalServer2",
             "skipFiles": ["node_modules/**"],
             "cwd": "${workspaceFolder}/api",
+            "envFile": "${workspaceFolder}/.env.development",
             "program": "server.js" // 修改为你的入口文件
         },
         {

@@ -14,7 +14,7 @@ const {
   fetchFirmware
 } = require('../services/github')
 const { createInstallationToken } = require('../services/github/auth')
-const { MissingRepoFile, findCodeKeymap } = require('../services/github/files')
+const { MissingRepoFile, findCodeKeymap,fetchShields } = require('../services/github/files')
 const { parseKeymap, validateKeymapJson, KeymapValidationError } = require('../services/zmk/keymap')
 const { validateInfoJson, InfoValidationError } = require('../services/zmk/layout')
 
@@ -96,13 +96,25 @@ const getBranches = async (req, res, next) => {
     next(err)
   }
 }
+const getShields = async (req, res, next) => {
+  const { installationId,owner, repository,branch } = req.params
+  console.log("owner:",owner,"repository:",repository,"branch:",branch)
+  try {
+    const { data: { token: installationToken } } = await createInstallationToken(installationId)
+    console.log("token:",installationToken)
+    const shields = await fetchShields(installationToken, owner, repository, branch)
 
+    res.json(shields)
+  } catch (err) {
+    next(err)
+  }
+}
 const getKeyboardFiles = async (req, res, next) => {
   const { installationId, owner, repository } = req.params
-  const { branch } = req.query
+  const { branch,shield } = req.query
 
   try {
-    const { info, keymap } = await fetchKeyboardFiles(installationId, owner, repository, branch)
+    const { info, keymap } = await fetchKeyboardFiles(installationId, owner, repository,shield, branch)
     validateInfoJson(info)
     validateKeymapJson(keymap)
 
@@ -112,14 +124,14 @@ const getKeyboardFiles = async (req, res, next) => {
     })
   } catch (err) {
     if (err instanceof MissingRepoFile) {
-      console.error(`Validation error in ${owner}  ${repository} (${branch}):`, err.constructor.name, err.errors)
+      console.error(`Validation error in ${owner}  ${repository} ${shield} (${branch}):`, err.constructor.name, err.errors)
       return res.status(400).json({
         name: err.constructor.name,
         path: err.path,
         errors: err.errors
       })
     } else if (err instanceof InfoValidationError || err instanceof KeymapValidationError) {
-      console.error(`Validation error in ${owner} ${repository} (${branch}):`, err.constructor.name, err.errors)
+      console.error(`Validation error in ${owner} ${repository} ${shield} (${branch}):`, err.constructor.name, err.errors)
       return res.status(400).json({
         name: err.name,
         errors: err.errors
@@ -131,11 +143,11 @@ const getKeyboardFiles = async (req, res, next) => {
 }
 
 const updateKeyboardFiles = async (req, res, next) => {
-  const { installationId,owner, repository, branch } = req.params
+  const { installationId,owner, repository,shield, branch } = req.params
   const { keymap, layout } = req.body
   let commitid; // 在try外部声明变量
   try {
-    commitid = await commitChanges(installationId, owner, repository, branch, layout, keymap)
+    commitid = await commitChanges(installationId, owner, repository, shield, branch, layout, keymap)
      // 返回200状态码和commitid
     res.status(200).json({
       status: 'success',
@@ -173,8 +185,9 @@ const receiveWebhook = (req, res) => {
 router.get('/authorize', authorize)
 router.get('/installation/:installationId/:owner/:repository/branches', authenticate, getBranches)
 router.get('/installation', authenticate, getInstallation)
+router.get('/installation/:installationId/:owner/:repository/:branch/shields', authenticate, getShields)
 router.get('/keyboard-files/:installationId/:owner/:repository', authenticate, getKeyboardFiles)
-router.post('/keyboard-files/:installationId/:owner/:repository/:branch', authenticate, updateKeyboardFiles)
+router.post('/keyboard-files/:installationId/:owner/:repository/:branch/:shield', authenticate, updateKeyboardFiles)
 router.post('/download-firmware/:installationId/:owner/:repository/:branch/:commitid', authenticate, downloadFirmware)
 router.post('/webhook', receiveWebhook)
 router.use(handleError)

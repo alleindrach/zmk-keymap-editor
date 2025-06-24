@@ -21,6 +21,7 @@
   "scripts": {
     "predeploy": "npm run build",  
     "deploy": "gh-pages -d build -r git@github.com:alleindrach/zmk-keymap-editor.git -b gh-pages", 
+    "dev": "env-cmd -f .env.development react-scripts start ",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "build:production": "env-cmd -f .env.production npm run build",

@@ -204,5 +204,48 @@
     "name": "Hold-Tap",
     "description": "Custom hold-tap behavior with tap-preferred flavor and 200ms tapping term.",
     "params": ["code","code"]
+  },
+  {
+    "code": "&ht_boot",
+    "name": "Hitkey or reboot",
+    "description": "long press to boot ,short click to hit normal key",
+    "params": ["code","code"]
+  },
+  {
+    "code": "&ht_reset",
+    "name": "Hitkey or reset",
+    "description": "long press to reset ,short click to hit normal key",
+    "params": ["code","code"]
+  }
+  ,
+  {
+    "code": "&ht_bt1",
+    "name": "Hitkey or switch to bluetooth device1",
+    "description": "long press to switch bluetooth device 1 ,short click to hit normal key",
+    "params": ["code","code"]
+  },
+  {
+    "code": "&ht_bt2",
+    "name": "Hitkey or switch to bluetooth device2",
+    "description": "long press to switch bluetooth device 2 ,short click to hit normal key",
+    "params": ["code","code"]
+  },
+  {
+    "code": "&ht_bt3",
+    "name": "Hitkey or switch to bluetooth device3",
+    "description": "long press to switch bluetooth device 3 ,short click to hit normal key",
+    "params": ["code","code"]
+  },
+  {
+    "code": "&ht_bt_clr",
+    "name": "Hitkey or clear current bluetooth device configuration",
+    "description": "long press to clear configuration ,short click to hit normal key",
+    "params": ["code","code"]
+  },
+  {
+    "code": "&ht_bt_clr_all",
+    "name": "Hitkey or clear all bluetooth device configurations",
+    "description": "long press to clear all configurations ,short click to hit normal key",
+    "params": ["code","code"]
   }
 ]
