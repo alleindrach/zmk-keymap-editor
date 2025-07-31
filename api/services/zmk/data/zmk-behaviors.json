@@ -247,5 +247,11 @@
     "name": "Hitkey or clear all bluetooth device configurations",
     "description": "long press to clear all configurations ,short click to hit normal key",
     "params": ["code","code"]
+  },
+  {
+    "code": "&input_toggle",
+    "name": "Space[right ctrl]",
+    "description": "toggle input method",
+    "params": []
   }
 ]
