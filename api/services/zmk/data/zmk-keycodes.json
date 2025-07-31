@@ -5547,5 +5547,61 @@
       "ios": null
     },
     "footnotes": {}
+  },{
+    "names": ["LCLK"],
+    "description": "Left Mouse Button Click",
+    "context": "Keyboard",
+    "clarify": true,
+    "documentation": "https://source.android.com/devices/input/keyboard-devices#hid-keyboard-and-keypad-page-0x07",
+    "os": {
+      "windows": true,
+      "linux": true,
+      "android": false,
+      "macos": true,
+      "ios": false
+    },
+    "footnotes": {}
+  },{
+    "names": ["RCLK"],
+    "description": "Right Mouse Button Click",
+    "context": "Keyboard",
+    "clarify": true,
+    "documentation": "https://source.android.com/devices/input/keyboard-devices#hid-keyboard-and-keypad-page-0x07",
+    "os": {
+      "windows": true,
+      "linux": true,
+      "android": false,
+      "macos": true,
+      "ios": false
+    },
+    "footnotes": {}
+  },{
+    "names": ["SCRL_UP"],
+    "description": "Mouse Scroll Up",
+    "context": "Keyboard",
+    "clarify": true,
+    "documentation": "https://source.android.com/devices/input/keyboard-devices#hid-keyboard-and-keypad-page-0x07",
+    "os": {
+      "windows": true,
+      "linux": true,
+      "android": false,
+      "macos": true,
+      "ios": false
+    },
+    "footnotes": {}
+  },{
+    "names": ["SCRL_DOWN"],
+    "description": "Mouse Scroll Down",
+    "context": "Keyboard",
+    "clarify": true,
+    "documentation": "https://source.android.com/devices/input/keyboard-devices#hid-keyboard-and-keypad-page-0x07",
+    "os": {
+      "windows": true,
+      "linux": true,
+      "android": false,
+      "macos": true,
+      "ios": false
+    },
+    "footnotes": {}
   }
 ]

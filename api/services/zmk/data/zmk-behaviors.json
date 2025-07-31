@@ -253,5 +253,18 @@
     "name": "Space[right ctrl]",
     "description": "toggle input method",
     "params": []
+  },
+  {
+    "code": "&mkp",
+    "name": "Trackpoint Key Press",
+    "params": ["code"],
+    "includes": ["#include <behaviors/mouse_keys.dtsi>","#include <dt-bindings/zmk/mouse.h>"]
+  },
+  {
+    "code": "&msc",
+    "name": "Trackpoint Mouse Scroll",
+    "params": ["code"],
+    "includes": []
   }
+   
 ]
